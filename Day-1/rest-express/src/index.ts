@@ -5,6 +5,8 @@ const PORT: number = 8000;
 
 const app: Application = express();
 
+app.use(express.json());
+
 app.get("/", (req: Request, res: Response) => {
   res.status(200).send({
     status: "succsess",
@@ -16,7 +18,7 @@ app.get("/", (req: Request, res: Response) => {
 const userRouter = new UserRouter()
 app.use("/api/users", userRouter.getRouter());
 
-//harus menggunakan app.user
+//harus menggunakan app.use
 
 
 
