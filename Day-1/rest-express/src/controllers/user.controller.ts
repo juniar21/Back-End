@@ -75,15 +75,20 @@ export class UserController {
       message: "Create User Succesfully!",
     });
   }
-  deleteUser(req:Request, res:Response){
+  deleteUser(req: Request, res: Response) {
     const { id } = req.params;
     const userS: IUser[] = JSON.parse(
       fs.readFileSync("./data/user.json", "utf-8")
     );
 
-    const idUser = userS.findIndex((item) => item.id == +id)
+    const idUser = userS.findIndex((item) => item.id == +id);
 
-    userS.splice(idUser,1);
+    if (idUser == -1) {
+      //jika divalidasi dan index tidak ada pasti hasilnya -1
+      res.status(400).send({ message: "User not found!" });
+      return;
+    }
+    userS.splice(idUser, 1);
 
     fs.writeFileSync("./data/user.json", JSON.stringify(userS));
 
@@ -91,4 +96,35 @@ export class UserController {
       message: "Delete User Succesfully!",
     });
   }
+
+  edituser(req: Request, res: Response) {
+    const { id } = req.params;
+    const updates = req.body;
+    const userS: IUser[] = JSON.parse(
+      fs.readFileSync("./data/user.json", "utf-8")
+    );
+    const idUser = userS.findIndex((item) => item.id == +id);
+
+    if (idUser == -1) {
+      //jika divalidasi dan index tidak ada pasti hasilnya -1
+      res.status(400).send({ message: "User not found!" });
+      return;
+    }
+    const fields = ["name", "emai"];
+    const isValid = Object.keys(req.body).every((key) => fields.includes(key));
+    if (isValid) {
+      res.status(201).send("Invalid field");
+      return;
+    }
+
+    userS[idUser] = { ...userS[idUser], ...updates };
+
+    fs.writeFileSync("./data/user.json", JSON.stringify(userS));
+
+    res.status(201).send({
+      message: "Update User Succesfully!",
+    });
+  }
+
+
 }

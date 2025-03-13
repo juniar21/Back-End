@@ -16,6 +16,8 @@ export class UserRouter {
         this.router.get("/", this.userController.getUserbyName);
         this.router.get("/:id", this.userController.getUserById);
         this.router.delete("/:id", this.userController.deleteUser)
+        this.router.patch("/:id", this.userController.edituser)      
+
     }
     getRouter(): Router {
         return this.router;
