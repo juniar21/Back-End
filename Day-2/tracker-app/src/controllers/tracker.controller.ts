@@ -135,11 +135,11 @@ export class TrackerController {
     const filteredExpenses = trackerS.filter((item) => {
       const itemDate = new Date(item.date);
 
-      const matchType = type ? item.type === type : true;
+      const matchType = item.type === type;
 
       const matchDate =
-      (!start || itemDate >= start) &&
-      (!end || itemDate <= end);
+      (itemDate >= start) &&
+      (itemDate <= end);
 
     return matchType && matchDate;
     });
