@@ -21,7 +21,15 @@ pool.connect((err, client, release) => {
   if (err) {
     return console.log("error acquiring client", err.stack);
   }
-  console.log("Success connection");
+  if (client) {
+    client.query("set search_path to test", (queryErr) => {
+      if (queryErr) {
+        console.log("Error connection Test", queryErr.stack);
+      } else {
+        console.log("Success connection Test");
+      }
+    });
+  }
   release();
 });
 // console.log(process.env); -> untuk melihat apakah db dan melihat error yang ada

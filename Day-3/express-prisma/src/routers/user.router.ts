@@ -20,6 +20,7 @@ export class UserRouter {
       this.authMiddleware.verifyToken,
       this.userController.getUser
     );
+    this.router.get("/redis", this.userController.getUserRedis)
     this.router.get("/", this.userController.getUser);
     this.router.get("/:id/post", this.userController.getUserByPost);
     this.router.get("/:id", this.userController.getUserById);

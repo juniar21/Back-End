@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import prisma from "../prisma";
 import { compare, genSalt, hash } from "bcrypt";
-import { sign } from "jsonwebtoken";
+import { sign } from "jsonwebtoken"
 import { transporter } from "../helpers/mailer";
 import path from "path";
 import fs from "fs";

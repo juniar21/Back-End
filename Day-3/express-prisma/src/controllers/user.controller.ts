@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
 import prisma from "../prisma";
 import { Prisma } from "../../prisma/generated/client";
+import logger from "../helpers/logger";
+import { redis } from "../helpers/redis";
 
 export class UserController {
- 
   async getUser(req: Request, res: Response) {
     try {
       const { search } = req.query;
@@ -20,11 +21,10 @@ export class UserController {
       });
 
       const stats = await prisma.user.aggregate({
-        _count: {username: true},//bisa juga _all jika mau mengambil semua
-        _max: {createdAt:true},
-        _min: {createdAt:true}
-
-      })
+        _count: { username: true }, //bisa juga _all jika mau mengambil semua
+        _max: { createdAt: true },
+        _min: { createdAt: true },
+      });
 
       res.status(200).send({
         message: "User Data",
@@ -45,13 +45,15 @@ export class UserController {
           id: Number(id),
         },
       });
+
+      if (!user) throw { message: "User not Found" };
+
       res.status(200).send({
-        rc: 200,
-        success: true,
-        result: user,
+        message: "user detail",
+        user,
       });
     } catch (err) {
-      console.log(err);
+      logger.error(err);
       res.status(400).send(err);
     }
   }
@@ -101,9 +103,8 @@ export class UserController {
       const user = await prisma.user.findUnique({
         where: {
           id: Number(id),
-        }, 
-        include: {Post:true}
-
+        },
+        include: { Post: true },
       });
       // const stats = await prisma.post.aggregate({
       //   _count: {userId: true},
@@ -115,7 +116,6 @@ export class UserController {
         rc: 200,
         success: true,
         result: user,
-       
       });
     } catch (err) {
       console.log(err);
@@ -123,4 +123,19 @@ export class UserController {
     }
   }
 
+  async getUserRedis(req: Request, res: Response) {
+    try {
+      const redisData = await redis.get("users");
+      if (redisData) {
+        res.status(200).send({ users: JSON.parse(redisData) });
+        return;
+      }
+      const users = await prisma.user.findMany();
+      await redis.setex("users", 60, JSON.stringify(users));
+      res.status(200).send({ users });
+    } catch (err) {
+      console.log(err);
+      res.status(400).send(err);
+    }
+  }
 }
